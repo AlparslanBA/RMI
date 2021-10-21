@@ -1,67 +1,116 @@
-import java.io.Console;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Servant extends UnicastRemoteObject implements ServiceClass {
 
     public Servant() throws RemoteException {
     }
-    LinkedList<String> list = new LinkedList<String>();
 
+    LinkedList<String> printer1 = new LinkedList<String>();
+    LinkedList<String> printer2 = new LinkedList<String>();
+    Boolean isRunning = false;
+    String configParameter = "";
+    ArrayList<LinkedList<String>> listOfPrinters = new ArrayList<LinkedList<String>>();
 
     @Override
     public String echo(String input) throws RemoteException {
-        return "From server: "+ input;
+        return "From server: " + input;
     }
 
     @Override
     public void print(String fileName, String printer) {
-        list.add(fileName);
-    }
-
-    @Override
-    public void queue(String printer) {
-        for (int i = 0; i < list.size(); i++){
-            System.out.println("<job number "+ i + "> \t" + "<file name " + list.get(i) + "> ");
+        if (printer.equals("printer1")) {
+            listOfPrinters.get(0).add(fileName);
+        } else if (printer.equals("printer2")) {
+            listOfPrinters.get(1).add(fileName);
         }
     }
 
     @Override
+    public String queue(String printer) {
+        String queue = "";
+        if (printer.equals("printer1")) {
+            for (int i = 0; i < listOfPrinters.get(0).size(); i++) {
+                queue += "<job number " + i + "> \t" + "<file name " + listOfPrinters.get(0).get(i) + ">  \n";
+            }
+            return queue;
+        } else if (printer.equals("printer2")) {
+            for (int i = 0; i < listOfPrinters.get(1).size(); i++) {
+                queue += "<job number " + i + "> \t" + "<file name " + listOfPrinters.get(1).get(i) + ">  \n";
+            }
+            return queue;
+        }
+        return queue;
+    }
+
+    @Override
     public void topQueue(String printer, int job) {
-        String file = list.remove(job);
-        list.addFirst(file);
+        if (printer.equals("printer1")) {
+            String file = listOfPrinters.get(0).remove(job);
+            listOfPrinters.get(0).addFirst(file);
+        } else if (printer.equals("printer2")) {
+            String file = listOfPrinters.get(1).remove(job);
+            listOfPrinters.get(1).addFirst(file);
+        }
     }
 
     @Override
     public void start() throws RemoteException {
-        Server.main(null);
+        if (listOfPrinters.isEmpty()) {
+            listOfPrinters.add(printer1);
+            listOfPrinters.add(printer2);
+        }
+        isRunning = true;
     }
 
     @Override
     public void stop() throws RemoteException {
-        System.exit(1);
+        isRunning = false;
     }
 
     @Override
     public void restart() throws RemoteException {
         stop();
-        System.out.flush();
+        for (int i = 0; i < listOfPrinters.size(); i++) {
+            listOfPrinters.get(i).clear();
+        }
+        listOfPrinters.clear();
         start();
     }
 
     @Override
-    public void status(String printer) {
-
+    public String status(String printer) {
+        if (!isRunning) {
+            return "Server is not running";
+        }
+        if (listOfPrinters.isEmpty()) {
+            return "Server is not started";
+        }
+        if (printer.equals("printer1")) {
+            if (listOfPrinters.get(0).isEmpty()) {
+                return "waiting";
+            } else {
+                return "printing";
+            }
+        } else if (printer.equals("printer2")) {
+            if (listOfPrinters.get(1).isEmpty()) {
+                return "waiting";
+            } else {
+                return "printing";
+            }
+        }
+        return "";
     }
 
     @Override
-    public void readConfig(String parameter) {
-        System.out.println(parameter);
+    public String readConfig(String parameter) {
+        return configParameter;
     }
 
     @Override
     public void setConfig(String parameter, String value) {
-        value = parameter;
+        configParameter = value;
     }
 }
