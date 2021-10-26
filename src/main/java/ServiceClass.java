@@ -2,6 +2,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface ServiceClass extends Remote {
+
     public String echo(String input) throws RemoteException;
     public void print(String fileName, String printer) throws RemoteException;
     public String queue(String printer) throws RemoteException;

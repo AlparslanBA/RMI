@@ -6,6 +6,6 @@ public class Server {
 
     public static void main(String[] args) throws RemoteException {
         Registry registry = LocateRegistry.createRegistry(6969);
-        registry.rebind("communication", new Servant());
+        registry.rebind("communication", new main.java.Servant());
     }
 }
