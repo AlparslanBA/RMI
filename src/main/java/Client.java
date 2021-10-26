@@ -27,7 +27,7 @@ public class Client {
         );
         String pswHash = bytesToHex(encodedHash);
 
-        System.out.println(serviceClass.login("Alen von Gay", pswHash));
+        System.out.println(serviceClass.login("Test von Test", pswHash));
     }
 
     private static String bytesToHex(byte[] hash) {
