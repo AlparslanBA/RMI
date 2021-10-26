@@ -1,33 +1,16 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
-import java.security.Key;
-
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTCreationException;
-import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import io.jsonwebtoken.*;
-
-import java.util.Date;
-
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.Claims;
-
+import java.util.Scanner;
 
 public class Servant extends UnicastRemoteObject implements ServiceClass {
-
     public Servant() throws RemoteException {
     }
 
-    private static String SECRET_KEY = "oeRaYY7Wo24sDqKSX3IM9ASGmdGPmkTd9jo1QTy4b7P9Ze5_9hKolVX8xNrQDcNRfVEdTZNOuOyqEGhXEbdJI-ZQ19k_o9MI0y3eZN2lp9jow55FfXMiINEdt1XR85VipRLSOkT6kSpzs2x-jbLDiz9iFVzkd81YKxMgPA7VfZeQUm4n-mOmnWMaVX30zGFU4L3oPBctYKkl4dYfqYWqRNfrgPJVi5DGFjywgxx0ASEiJHtV72paI3fDR2XwlSkyhhmY-ICjCRmsJN4fX1pdoL8a18-aQrvyu4j0Os6dVPYIoPvvY0SAZtWYKHfM15g7A3HD4cVREf9cUsprCRK93w";
-
+    File file = new File("publicFile.txt");
     LinkedList<String> printer1 = new LinkedList<String>();
     LinkedList<String> printer2 = new LinkedList<String>();
     Boolean isRunning = false;
@@ -134,12 +117,29 @@ public class Servant extends UnicastRemoteObject implements ServiceClass {
         configParameter = value;
     }
 
+    @Override
+    public String login(String username, String password) throws RemoteException, FileNotFoundException {
+        if (ReadFromPublicFile(username, password)){
+            return "Successfully logged in";
+        }
+
+        return "Username or password incorrect";
+    }
 
 
+    private Boolean ReadFromPublicFile(String username, String password) throws FileNotFoundException {
+        Scanner myReader = new Scanner(file);
 
+        Boolean loggedIn = false;
+        while (myReader.hasNextLine()) {
+            String data = myReader.nextLine();
 
-
-
+            if (username.equals(data.split(";")[0]) && password.equals(data.split(";")[1])){
+                loggedIn = true;
+                break;
+            }
+        }
+        myReader.close();
+        return loggedIn;
+    }
 }
-
-
