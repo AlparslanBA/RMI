@@ -17,4 +17,5 @@ public class Client {
         serviceClass.topQueue("printer1", 1);
         System.out.println(serviceClass.queue("printer1"));
     }
+
 }
