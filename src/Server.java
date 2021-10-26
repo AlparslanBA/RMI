@@ -10,16 +10,22 @@ import java.util.Scanner;
 public class Server {
     File myObj = new File("publicFile.txt");
 
-    public static void main(String[] args) throws RemoteException {
+    public static void main(String[] args) throws RemoteException, FileNotFoundException {
         Registry registry = LocateRegistry.createRegistry(6969);
         registry.rebind("communication", new Servant());
+
+        Server server = new Server();
+
+        server.FileWriter("Alens got a big head");
+        server.FileWriter("Alen small pepe");
+        server.FileReader();
     }
 
     private void FileWriter(String input){
         FileWriter myWriter;
         try {
-            myWriter = new FileWriter(myObj);
-            myWriter.write(input);
+            myWriter = new FileWriter(myObj, true);
+            myWriter.write("\n"+input);
             myWriter.close();
             System.out.println("File has been updated");
         } catch (IOException e) {
