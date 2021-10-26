@@ -12,7 +12,7 @@ public class Server {
 
     public static void main(String[] args) throws RemoteException, FileNotFoundException {
         Registry registry = LocateRegistry.createRegistry(6969);
-        registry.rebind("communication", new main.java.Servant());
+        registry.rebind("communication", new Servant());
 
         Server server = new Server();
 
