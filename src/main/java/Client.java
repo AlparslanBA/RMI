@@ -10,16 +10,16 @@ import java.security.NoSuchAlgorithmException;
 public class Client {
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException, FileNotFoundException, NoSuchAlgorithmException {
         ServiceClass serviceClass = (ServiceClass) Naming.lookup("rmi://localhost:9001/communication");
-        System.out.println("--- " + serviceClass.echo("server" + "  " + serviceClass.getClass().getName()));
-        serviceClass.restart();
-        System.out.println(serviceClass.status("printer1") + " 1");
-        serviceClass.start();
-        serviceClass.print("alp.png", "printer1");
-        serviceClass.print("alp2.png", "printer1");
-        System.out.println(serviceClass.status("printer1") + " 2");
-        System.out.println(serviceClass.queue("printer1"));
-        serviceClass.topQueue("printer1", 1);
-        System.out.println(serviceClass.queue("printer1"));
+        System.out.println("--- " + serviceClass.echo("server" + "  " + serviceClass.getClass().getName(),"token"));
+        serviceClass.restart("token");
+        System.out.println(serviceClass.status("printer1","token") + " 1");
+        serviceClass.start("token");
+        serviceClass.print("alp.png", "printer1", "token");
+        serviceClass.print("alp2.png", "printer1", "token");
+        System.out.println(serviceClass.status("printer1", "token") + " 2");
+        System.out.println(serviceClass.queue("printer1", "token"));
+        serviceClass.topQueue("printer1", 1,"token");
+        System.out.println(serviceClass.queue("printer1", "token"));
 
         MessageDigest msgDigest = MessageDigest.getInstance("SHA-256");
         byte[] encodedHash = msgDigest.digest(
@@ -27,7 +27,7 @@ public class Client {
         );
         String pswHash = bytesToHex(encodedHash);
 
-        System.out.println(serviceClass.login("Test von Test", pswHash));
+        System.out.println(serviceClass.login("Test von Test", pswHash, "token"));
     }
 
     private static String bytesToHex(byte[] hash) {

@@ -18,12 +18,12 @@ public class Servant extends UnicastRemoteObject implements ServiceClass {
     ArrayList<LinkedList<String>> listOfPrinters = new ArrayList<LinkedList<String>>();
 
     @Override
-    public String echo(String input) throws RemoteException {
+    public String echo(String input, String token) throws RemoteException {
         return "From server: " + input;
     }
 
     @Override
-    public void print(String fileName, String printer) {
+    public void print(String fileName, String printer, String token) {
         if (printer.equals("printer1")) {
             listOfPrinters.get(0).add(fileName);
         } else if (printer.equals("printer2")) {
@@ -32,7 +32,7 @@ public class Servant extends UnicastRemoteObject implements ServiceClass {
     }
 
     @Override
-    public String queue(String printer) {
+    public String queue(String printer, String token) {
         String queue = "";
         if (printer.equals("printer1")) {
             for (int i = 0; i < listOfPrinters.get(0).size(); i++) {
@@ -49,7 +49,7 @@ public class Servant extends UnicastRemoteObject implements ServiceClass {
     }
 
     @Override
-    public void topQueue(String printer, int job) {
+    public void topQueue(String printer, int job, String token) {
         if (printer.equals("printer1")) {
             String file = listOfPrinters.get(0).remove(job);
             listOfPrinters.get(0).addFirst(file);
@@ -60,7 +60,7 @@ public class Servant extends UnicastRemoteObject implements ServiceClass {
     }
 
     @Override
-    public void start() throws RemoteException {
+    public void start(String token) throws RemoteException {
         if (listOfPrinters.isEmpty()) {
             listOfPrinters.add(printer1);
             listOfPrinters.add(printer2);
@@ -69,22 +69,22 @@ public class Servant extends UnicastRemoteObject implements ServiceClass {
     }
 
     @Override
-    public void stop() throws RemoteException {
+    public void stop(String token) throws RemoteException {
         isRunning = false;
     }
 
     @Override
-    public void restart() throws RemoteException {
-        stop();
+    public void restart(String token) throws RemoteException {
+        stop(token);
         for (int i = 0; i < listOfPrinters.size(); i++) {
             listOfPrinters.get(i).clear();
         }
         listOfPrinters.clear();
-        start();
+        start(token);
     }
 
     @Override
-    public String status(String printer) {
+    public String status(String printer, String token) {
         if (!isRunning) {
             return "Server is not running";
         }
@@ -108,18 +108,18 @@ public class Servant extends UnicastRemoteObject implements ServiceClass {
     }
 
     @Override
-    public String readConfig(String parameter) {
+    public String readConfig(String parameter, String token) {
         return configParameter;
     }
 
     @Override
-    public void setConfig(String parameter, String value) {
+    public void setConfig(String parameter, String value, String token) {
         configParameter = value;
     }
 
     @Override
-    public String login(String username, String password) throws RemoteException, FileNotFoundException {
-        if (ReadFromPublicFile(username, password)){
+    public String login(String username, String password, String token) throws RemoteException, FileNotFoundException {
+        if (ReadFromPublicFile(username, password,token)){
             return "Successfully logged in";
         }
 
@@ -127,7 +127,7 @@ public class Servant extends UnicastRemoteObject implements ServiceClass {
     }
 
 
-    private Boolean ReadFromPublicFile(String username, String password) throws FileNotFoundException {
+    private Boolean ReadFromPublicFile(String username, String password, String token) throws FileNotFoundException {
         Scanner myReader = new Scanner(file);
 
         Boolean loggedIn = false;

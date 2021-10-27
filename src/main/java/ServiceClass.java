@@ -4,15 +4,15 @@ import java.rmi.RemoteException;
 
 public interface ServiceClass extends Remote {
 
-    public String echo(String input) throws RemoteException;
-    public void print(String fileName, String printer) throws RemoteException;
-    public String queue(String printer) throws RemoteException;
-    public void topQueue(String printer, int job) throws RemoteException;
-    public void start() throws RemoteException;
-    public void stop() throws RemoteException;
-    public void restart() throws RemoteException;
-    public String status(String printer) throws RemoteException;
-    public String readConfig(String parameter) throws RemoteException;
-    public void setConfig(String parameter, String value) throws RemoteException;
-    public String login(String username, String password) throws RemoteException, FileNotFoundException;
+    public String echo(String input, String token) throws RemoteException;
+    public void print(String fileName, String printer, String token) throws RemoteException;
+    public String queue(String printer, String token) throws RemoteException;
+    public void topQueue(String printer, int job, String token) throws RemoteException;
+    public void start(String token) throws RemoteException;
+    public void stop(String token) throws RemoteException;
+    public void restart(String token) throws RemoteException;
+    public String status(String printer, String token) throws RemoteException;
+    public String readConfig(String parameter, String token) throws RemoteException;
+    public void setConfig(String parameter, String value, String token) throws RemoteException;
+    public String login(String username, String password, String token) throws RemoteException, FileNotFoundException;
 }
