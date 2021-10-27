@@ -9,7 +9,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class Client {
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException, FileNotFoundException, NoSuchAlgorithmException {
-        ServiceClass serviceClass = (ServiceClass) Naming.lookup("rmi://localhost:6969/communication");
+        ServiceClass serviceClass = (ServiceClass) Naming.lookup("rmi://localhost:9001/communication");
         System.out.println("--- " + serviceClass.echo("server" + "  " + serviceClass.getClass().getName()));
         serviceClass.restart();
         System.out.println(serviceClass.status("printer1") + " 1");

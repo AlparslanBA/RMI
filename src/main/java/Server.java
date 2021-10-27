@@ -19,7 +19,7 @@ public class Server {
     File myObj = new File("publicFile.txt");
     Date now = new Date();
     public static void main(String[] args) throws RemoteException, FileNotFoundException, InterruptedException {
-        Registry registry = LocateRegistry.createRegistry(6969);
+        Registry registry = LocateRegistry.createRegistry(9001);
         registry.rebind("communication", new Servant());
 
         Server server = new Server();
