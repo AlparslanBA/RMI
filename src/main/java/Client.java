@@ -1,12 +1,14 @@
 import java.io.FileNotFoundException;
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.security.NoSuchAlgorithmException;
 
 public class Client {
-    public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
+    public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException, FileNotFoundException, NoSuchAlgorithmException {
         IServiceClass serviceClass = (IServiceClass) Naming.lookup("rmi://localhost:9001/communication");
         System.out.println("--- " + serviceClass.echo("server" + "  " + serviceClass.getClass().getName(),"token"));
         serviceClass.restart("token");
