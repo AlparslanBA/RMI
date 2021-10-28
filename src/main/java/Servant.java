@@ -121,8 +121,8 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
     }
 
     @Override
-    public String login(String username, String password, String token) throws RemoteException, FileNotFoundException {
-        if (ReadFromPublicFile(username, EncryptPassword(password),token)){
+    public String login(String username, String password) throws RemoteException, FileNotFoundException, NoSuchAlgorithmException {
+        if (ReadFromPublicFile(username, EncryptPassword(password))){
             return "Successfully logged in";
         }
 
@@ -130,7 +130,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
     }
 
 
-    private Boolean ReadFromPublicFile(String username, String password, String token) throws FileNotFoundException {
+    private Boolean ReadFromPublicFile(String username, String password) throws FileNotFoundException {
         Scanner myReader = new Scanner(file);
 
         Boolean loggedIn = false;
