@@ -21,25 +21,6 @@ public class Client {
         serviceClass.topQueue("printer1", 1,"token");
         System.out.println(serviceClass.queue("printer1", "token"));
 
-        MessageDigest msgDigest = MessageDigest.getInstance("SHA-256");
-        byte[] encodedHash = msgDigest.digest(
-                "password".getBytes(StandardCharsets.UTF_8)
-        );
-        String pswHash = bytesToHex(encodedHash);
-
-        System.out.println(serviceClass.login("Test von Test", pswHash, "token"));
+        System.out.println(serviceClass.login("Test von Test", "password", "token"));
     }
-
-    private static String bytesToHex(byte[] hash) {
-        StringBuilder hexString = new StringBuilder(2 * hash.length);
-        for (int i = 0; i < hash.length; i++) {
-            String hex = Integer.toHexString(0xff & hash[i]);
-            if(hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return hexString.toString();
-    }
-
 }
