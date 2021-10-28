@@ -7,7 +7,7 @@ import java.rmi.RemoteException;
 
 public class Client {
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
-        ServiceClass serviceClass = (ServiceClass) Naming.lookup("rmi://localhost:9001/communication");
+        IServiceClass serviceClass = (IServiceClass) Naming.lookup("rmi://localhost:9001/communication");
         System.out.println("--- " + serviceClass.echo("server" + "  " + serviceClass.getClass().getName(),"token"));
         serviceClass.restart("token");
         System.out.println(serviceClass.status("printer1","token") + " 1");
