@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-public class Servant extends UnicastRemoteObject implements ServiceClass {
+public class Servant extends UnicastRemoteObject implements IServiceClass {
     public Servant() throws RemoteException {
     }
 
