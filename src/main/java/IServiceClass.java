@@ -1,6 +1,7 @@
 import java.io.FileNotFoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.security.NoSuchAlgorithmException;
 
 public interface IServiceClass extends Remote {
 
@@ -14,5 +15,5 @@ public interface IServiceClass extends Remote {
     public String status(String printer, String token) throws RemoteException;
     public String readConfig(String parameter, String token) throws RemoteException;
     public void setConfig(String parameter, String value, String token) throws RemoteException;
-    public String login(String username, String password, String token) throws RemoteException, FileNotFoundException;
+    public String login(String username, String password) throws RemoteException, FileNotFoundException, NoSuchAlgorithmException;
 }
