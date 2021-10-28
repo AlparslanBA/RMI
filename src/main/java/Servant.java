@@ -10,16 +10,17 @@ import java.util.LinkedList;
 import java.util.Scanner;
 
 public class Servant extends UnicastRemoteObject implements IServiceClass {
-    public Servant() throws RemoteException {
-    }
-
     File file = new File("publicFile.txt");
-    file.setReadOnly();
     LinkedList<String> printer1 = new LinkedList<String>();
     LinkedList<String> printer2 = new LinkedList<String>();
     Boolean isRunning = false;
     String configParameter = "";
     ArrayList<LinkedList<String>> listOfPrinters = new ArrayList<LinkedList<String>>();
+    
+    public Servant() throws RemoteException {
+        file.setReadOnly();
+    }
+
 
     @Override
     public String echo(String input, String token) throws RemoteException {
