@@ -2,6 +2,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Scanner;
@@ -144,7 +146,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
         return loggedIn;
     }
     
-    private String EncryptPassword(String password){
+    private String EncryptPassword(String password) throws NoSuchAlgorithmException {
      MessageDigest msgDigest = MessageDigest.getInstance("SHA-256");
         byte[] encodedHash = msgDigest.digest(
                 "password".getBytes(StandardCharsets.UTF_8)
