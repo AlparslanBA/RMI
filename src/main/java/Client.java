@@ -21,6 +21,6 @@ public class Client {
         serviceClass.topQueue("printer1", 1,"token");
         System.out.println(serviceClass.queue("printer1", "token"));
 
-        System.out.println(serviceClass.login("Test von Test", "password", "token"));
+        System.out.println(serviceClass.login("Test von Test", "password"));
     }
 }
