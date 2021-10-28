@@ -120,7 +120,7 @@ public class Servant extends UnicastRemoteObject implements ServiceClass {
 
     @Override
     public String login(String username, String password, String token) throws RemoteException, FileNotFoundException {
-        if (ReadFromPublicFile(username, password,token)){
+        if (ReadFromPublicFile(username, EncryptPassword(password),token)){
             return "Successfully logged in";
         }
 
@@ -142,5 +142,25 @@ public class Servant extends UnicastRemoteObject implements ServiceClass {
         }
         myReader.close();
         return loggedIn;
+    }
+    
+    private String EncryptPassword(String password){
+     MessageDigest msgDigest = MessageDigest.getInstance("SHA-256");
+        byte[] encodedHash = msgDigest.digest(
+                "password".getBytes(StandardCharsets.UTF_8)
+        );
+        return bytesToHex(encodedHash);
+    }
+
+    private String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 }
