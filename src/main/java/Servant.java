@@ -11,7 +11,7 @@ public class Servant extends UnicastRemoteObject implements ServiceClass {
     }
 
     File file = new File("publicFile.txt");
-    file.setReadOnly(true);
+    file.setReadOnly();
     LinkedList<String> printer1 = new LinkedList<String>();
     LinkedList<String> printer2 = new LinkedList<String>();
     Boolean isRunning = false;
