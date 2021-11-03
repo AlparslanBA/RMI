@@ -29,15 +29,18 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
 
     @Override
     public void print(String fileName, String printer, String token) {
-        if (printer.equals("printer1")) {
-            listOfPrinters.get(0).add(fileName);
-        } else if (printer.equals("printer2")) {
-            listOfPrinters.get(1).add(fileName);
+        if (roleId == 0 || roleId == 2 ||  roleId == 3) {
+            if (printer.equals("printer1")) {
+                listOfPrinters.get(0).add(fileName);
+            } else if (printer.equals("printer2")) {
+                listOfPrinters.get(1).add(fileName);
+            }
         }
     }
 
     @Override
     public String queue(String printer, String token) {
+        if (roleId == 0 || roleId == 2 ||  roleId == 3) {
         String queue = "";
         if (printer.equals("printer1")) {
             for (int i = 0; i < listOfPrinters.get(0).size(); i++) {
@@ -51,75 +54,95 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             return queue;
         }
         return queue;
+        }
+
+        return "You do not have permission for that operations...";
     }
 
     @Override
     public void topQueue(String printer, int job, String token) {
-        if (printer.equals("printer1")) {
-            String file = listOfPrinters.get(0).remove(job);
-            listOfPrinters.get(0).addFirst(file);
-        } else if (printer.equals("printer2")) {
-            String file = listOfPrinters.get(1).remove(job);
-            listOfPrinters.get(1).addFirst(file);
+        if (roleId == 0 || roleId == 2) {
+            if (printer.equals("printer1")) {
+                String file = listOfPrinters.get(0).remove(job);
+                listOfPrinters.get(0).addFirst(file);
+            } else if (printer.equals("printer2")) {
+                String file = listOfPrinters.get(1).remove(job);
+                listOfPrinters.get(1).addFirst(file);
+            }
         }
+        // "You do not have permission for that operations...";
     }
 
     @Override
     public void start(String token) throws RemoteException {
-        if (listOfPrinters.isEmpty()) {
-            listOfPrinters.add(printer1);
-            listOfPrinters.add(printer2);
+        if (roleId == 0 || roleId == 1) {
+            if (listOfPrinters.isEmpty()) {
+                listOfPrinters.add(printer1);
+                listOfPrinters.add(printer2);
+            }
+            isRunning = true;
         }
-        isRunning = true;
     }
 
     @Override
     public void stop(String token) throws RemoteException {
-        isRunning = false;
+        if (token == 0 || roleId == 1) {
+            isRunning = false;
+        }
     }
 
     @Override
     public void restart(String token) throws RemoteException {
-        stop(token);
-        for (int i = 0; i < listOfPrinters.size(); i++) {
-            listOfPrinters.get(i).clear();
+        if (roleId == 0 || roleId == 1 || roleId == 2) {
+            stop(token, roleId);
+            for (int i = 0; i < listOfPrinters.size(); i++) {
+                listOfPrinters.get(i).clear();
+            }
+            listOfPrinters.clear();
+            start(token, roleId);
         }
-        listOfPrinters.clear();
-        start(token);
     }
 
     @Override
     public String status(String printer, String token) {
-        if (!isRunning) {
-            return "Server is not running";
-        }
-        if (listOfPrinters.isEmpty()) {
-            return "Server is not started";
-        }
-        if (printer.equals("printer1")) {
-            if (listOfPrinters.get(0).isEmpty()) {
-                return "waiting";
-            } else {
-                return "printing";
+        if (roleId == 0 || roleId == 1) {
+            if (!isRunning) {
+                return "Server is not running";
             }
-        } else if (printer.equals("printer2")) {
-            if (listOfPrinters.get(1).isEmpty()) {
-                return "waiting";
-            } else {
-                return "printing";
+            if (listOfPrinters.isEmpty()) {
+                return "Server is not started";
             }
+            if (printer.equals("printer1")) {
+                if (listOfPrinters.get(0).isEmpty()) {
+                    return "waiting";
+                } else {
+                    return "printing";
+                }
+            } else if (printer.equals("printer2")) {
+                if (listOfPrinters.get(1).isEmpty()) {
+                    return "waiting";
+                } else {
+                    return "printing";
+                }
+            }
+            return "";
         }
-        return "";
+        return "You do not have permission for that operations...";
     }
 
     @Override
     public String readConfig(String parameter, String token) {
-        return configParameter;
+        if (roleId == 0 || roleId == 1) {
+            return configParameter;
+        }
+        return "You do not have permission for that operations...";
     }
 
     @Override
     public void setConfig(String parameter, String value, String token) {
-        configParameter = value;
+        if (roleId == 0 || roleId == 1) {
+            configParameter = value;
+        }
     }
 
     @Override
