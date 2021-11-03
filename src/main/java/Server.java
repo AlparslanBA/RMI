@@ -24,9 +24,6 @@ public class Server {
 
         Server server = new Server();
 
-        //server.FileWriter("Alens got a big head");
-        //server.FileWriter("Alen small pepe");
-        //server.FileReader();
         String token = server.createJWT("test");
         Thread.sleep(5000);
         server.decodeJWT(token);
