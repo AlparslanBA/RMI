@@ -11,6 +11,7 @@ import java.util.Scanner;
 
 public class Servant extends UnicastRemoteObject implements IServiceClass {
     File file = new File("publicFile.txt");
+    File passwordFile = new File("accessControllPolicy.txt");
     LinkedList<String> printer1 = new LinkedList<String>();
     LinkedList<String> printer2 = new LinkedList<String>();
     Boolean isRunning = false;
@@ -125,12 +126,34 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
     @Override
     public String login(String username, String password) throws RemoteException, FileNotFoundException, NoSuchAlgorithmException {
         if (ReadFromPublicFile(username, EncryptPassword(password))){
+            System.out.println(username +  " : Works ");
+            System.out.println(checkRole(username, "print"));
+            System.out.println(username + "  :  Nooo ");
+            System.out.println(checkRole(username, "status"));
             return "Successfully logged in";
         }
 
         return "Username or password incorrect";
     }
 
+    private boolean checkRole(String username, String operations) throws FileNotFoundException {
+        Scanner myReader = new Scanner(passwordFile);
+        boolean userfound = false;
+     //   System.out.println(username + "   "  + operations);
+
+        while (myReader.hasNextLine()) {
+            String data = myReader.nextLine();
+            if(data.contains(username)) {
+                if(data.contains(operations)) {
+                    userfound = true;
+                } else {
+                    userfound = false;
+                }
+                break;
+            }
+        }
+        return userfound;
+    }
 
     private Boolean ReadFromPublicFile(String username, String password) throws FileNotFoundException {
         Scanner myReader = new Scanner(file);

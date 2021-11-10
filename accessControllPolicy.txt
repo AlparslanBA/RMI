@@ -1,4 +1,4 @@
-Test von Test; Read
+Test von Test; Read, print
 Alice: print, queue, topQueue, start, stop, restart, status, readConfig, setConfig
 Bob: start, stop, restart, status, readConfig, setConfig
 Cecilia: print, queue, topQueue, restart

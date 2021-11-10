@@ -5,10 +5,7 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -27,10 +24,39 @@ public class Server {
         //server.FileWriter("Alens got a big head");
         //server.FileWriter("Alen small pepe");
         //server.FileReader();
-        String token = server.createJWT("test");
-        Thread.sleep(5000);
-        server.decodeJWT(token);
 
+        //FileReader(new File("accessControllPolicy.txt")) ;
+
+       // checkRole("David", "print");
+
+        String token = server.createJWT("test");
+        Thread.sleep(1);
+        server.decodeJWT(token);
+    }
+
+    static private boolean checkRole(String username, String operations) throws FileNotFoundException {
+        Scanner myReader = new Scanner("accessControllPolicy.txt");
+        boolean userfound = false;
+        System.out.println(username + "   "  + operations);
+        System.out.println(myReader);
+
+        while (myReader.hasNextLine()) {
+            String data = myReader.nextLine();
+
+            System.out.println(myReader);
+            System.out.println("   h----");
+           // System.out.println(myReader.nextLine());
+            System.out.println("   h---");
+            System.out.println(data);
+
+
+            if(data.contains(username)) {
+                System.out.println("It works");
+                System.out.println(operations);
+                return data.contains(operations);
+            }
+        }
+        return false;
     }
 
     private void FileWriter(String input){
@@ -45,8 +71,8 @@ public class Server {
         }
     }
 
-    private void FileReader() throws FileNotFoundException {
-        Scanner myReader = new Scanner(myObj);
+    static private void FileReader(File file) throws FileNotFoundException {
+        Scanner myReader = new Scanner(file);
         while (myReader.hasNextLine()) {
             String data = myReader.nextLine();
             System.out.println(data);
