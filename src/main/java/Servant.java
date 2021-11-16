@@ -5,8 +5,7 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -20,7 +19,6 @@ import java.util.Scanner;
 public class Servant extends UnicastRemoteObject implements IServiceClass {
     File publicFile = new File("publicFile.txt");
     File policyFile = new File("policy.txt");
-    String token;
     LinkedList<String> printer1 = new LinkedList<String>();
     LinkedList<String> printer2 = new LinkedList<String>();
     Boolean isRunning = false;
@@ -181,6 +179,90 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
         return "Username or password incorrect";
     }
 
+    @Override
+    public String deleteUser(String username, String token) throws IOException {
+        if (GetRoleFromToken(token) == 0) {
+            policyFile.setWritable(true);
+            Scanner reader = new Scanner(policyFile);
+            BufferedWriter bw = new BufferedWriter(new FileWriter(policyFile));
+            while (reader.hasNextLine()) {
+                String data = reader.nextLine();
+                System.out.println(data);
+                if(!data.contains(username)) {
+                    bw.write(data+System.getProperty("line.separator"));
+                }
+            }
+            policyFile.setWritable(false);
+
+            publicFile.setWritable(true);
+            reader = new Scanner(publicFile);
+            bw = new BufferedWriter(new FileWriter(publicFile));
+            while (reader.hasNextLine()) {
+                String data = reader.nextLine();
+                if(!data.contains(username)) {
+                    bw.write(data+System.getProperty("line.separator"));
+                }
+            }
+            publicFile.setWritable(false);
+
+            bw.close();
+            reader.close();
+            return username  + " has been deleted";
+        }
+        return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
+    }
+    @Override
+    public String addUser(String username, String password,String role, String token) throws IOException, NoSuchAlgorithmException {
+        if (GetRoleFromToken(token) == 0) {
+            publicFile.setWritable(true);
+            FileWriter fw = new FileWriter(publicFile, true);
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            bw.write(username + ";" + EncryptPassword(password));
+            bw.newLine();
+            bw.close();
+            publicFile.setWritable(false);
+
+
+            policyFile.setWritable(true);
+            fw = new FileWriter(policyFile, true);
+            bw = new BufferedWriter(fw);
+
+            bw.write(username + ";" + role);
+            bw.newLine();
+            bw.close();
+            policyFile.setWritable(false);
+            return username + " with role: " + role + " has been added";
+        }
+        return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
+    }
+    @Override
+    public String updateUserRole(String username, String role, String token) throws IOException {
+        if (GetRoleFromToken(token) == 0) {
+            File tempFile = new File("myTempFile.txt");
+            Scanner reader = new Scanner(policyFile);
+            BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
+
+            while (reader.hasNextLine()) {
+                String data = reader.nextLine();
+                System.out.println(data);
+                if(data.contains(username)) {
+                    bw.write(data.split(";")[0] + ";" + role + System.getProperty("line.separator"));
+                }
+                else{
+                    bw.write(data+System.getProperty("line.separator"));
+                }
+
+            }
+            bw.close();
+            reader.close();
+            //policyFile.setWritable(false);
+            tempFile.renameTo(policyFile);
+            return username + " updated to have role: " + role;
+        }
+        return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
+
+    }
 
     private Boolean ReadFromPublicFile(String username, String password) throws FileNotFoundException {
         Scanner myReader = new Scanner(publicFile);
@@ -205,7 +287,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
 
             if (username.equals(data.split(";")[0])){
                 myReader.close();
-                return Integer.parseInt(data.split("; ")[1]);
+                return Integer.parseInt(data.split(";")[1]);
             }
         }
         myReader.close();

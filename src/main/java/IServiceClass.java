@@ -1,4 +1,5 @@
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.security.NoSuchAlgorithmException;
@@ -16,4 +17,7 @@ public interface IServiceClass extends Remote {
     public String readConfig(String parameter, String token) throws RemoteException;
     public String setConfig(String parameter, String value, String token) throws RemoteException;
     public String login(String username, String password) throws RemoteException, FileNotFoundException, NoSuchAlgorithmException;
+    public String deleteUser(String username, String token) throws NoSuchAlgorithmException, IOException;
+    public String addUser(String username, String password, String role, String token) throws NoSuchAlgorithmException, IOException;
+    public String updateUserRole(String username, String role, String token) throws NoSuchAlgorithmException, IOException;
 }
