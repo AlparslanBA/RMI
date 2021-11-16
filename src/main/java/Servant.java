@@ -252,11 +252,11 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
                 else{
                     bw.write(data+System.getProperty("line.separator"));
                 }
-
             }
             bw.close();
             reader.close();
             //policyFile.setWritable(false);
+            policyFile.delete();
             tempFile.renameTo(policyFile);
             return username + " updated to have role: " + role;
         }
