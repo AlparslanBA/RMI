@@ -1,5 +1,4 @@
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -124,12 +123,14 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
     }
 
     @Override
-    public String login(String username, String password) throws RemoteException, FileNotFoundException, NoSuchAlgorithmException {
+    public String login(String username, String password) throws IOException, NoSuchAlgorithmException {
         if (ReadFromPublicFile(username, EncryptPassword(password))){
             System.out.println(username +  " : Works ");
             System.out.println(checkRole(username, "print"));
             System.out.println(username + "  :  Nooo ");
             System.out.println(checkRole(username, "status"));
+            System.out.println("delete:" + deleteUser("George"));
+            addUser("Henry", new String[]{"print, queue"});
             return "Successfully logged in";
         }
 
@@ -153,6 +154,40 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             }
         }
         return userfound;
+    }
+
+    private boolean deleteUser(String username) throws IOException {
+        File tempFile = new File("myTempFile.txt");
+
+        BufferedReader reader = new BufferedReader(new FileReader(passwordFile));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+
+        String currentLine;
+
+        while((currentLine = reader.readLine()) != null) {
+            // trim newline when comparing with lineToRemove
+            String trimmedLine = currentLine.trim();
+            if(trimmedLine.contains(username)) continue;
+            writer.write(currentLine + System.getProperty("line.separator"));
+        }
+        writer.close();
+        reader.close();
+        boolean successful = tempFile.renameTo(passwordFile);
+        return successful;
+    }
+
+    private void addUser(String username, String[] pernmissions) throws IOException {
+
+            FileWriter fw = new FileWriter(passwordFile, true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            String perms = "";
+        for (String role: pernmissions) {
+           perms = perms.concat(role+", ");
+
+        }
+            bw.write(username+": " + perms);
+            bw.newLine();
+            bw.close();
     }
 
     private Boolean ReadFromPublicFile(String username, String password) throws FileNotFoundException {
