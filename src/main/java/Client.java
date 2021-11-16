@@ -12,6 +12,7 @@ public class Client {
         IServiceClass aliceClient = (IServiceClass) Naming.lookup("rmi://localhost:9001/communication");
 
         String token = aliceClient.login("Alice", "password");
+        System.out.println(token);
         System.out.println(aliceClient.queue("",token));
         System.out.println(aliceClient.topQueue("",1,token));
         System.out.println(aliceClient.setConfig("","",token));

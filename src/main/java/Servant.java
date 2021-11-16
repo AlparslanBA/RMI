@@ -216,7 +216,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
     private String EncryptPassword(String password) throws NoSuchAlgorithmException {
      MessageDigest msgDigest = MessageDigest.getInstance("SHA-256");
         byte[] encodedHash = msgDigest.digest(
-                "password".getBytes(StandardCharsets.UTF_8)
+                password.getBytes(StandardCharsets.UTF_8)
         );
         return bytesToHex(encodedHash);
     }
