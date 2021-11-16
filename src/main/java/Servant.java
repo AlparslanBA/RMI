@@ -258,6 +258,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             //policyFile.setWritable(false);
             policyFile.delete();
             tempFile.renameTo(policyFile);
+            policyFile = tempFile;
             return username + " updated to have role: " + role;
         }
         return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
