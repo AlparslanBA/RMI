@@ -39,7 +39,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
     }
 
     @Override
-    public void print(String fileName, String printer, String token) {
+    public String print(String fileName, String printer, String token) {
         int roleId = GetRoleFromToken(token);
         if (roleId == 0 || roleId == 2 ||  roleId == 3) {
             if (printer.equals("printer1")) {
@@ -48,7 +48,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
                 listOfPrinters.get(1).add(fileName);
             }
         }
-        System.out.println("No permission");
+        return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
 
     @Override
@@ -69,12 +69,11 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
         }
         return queue;
         }
-        System.out.println("No permission");
-        return "You do not have permission for that operations...";
+        return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
 
     @Override
-    public void topQueue(String printer, int job, String token) {
+    public String topQueue(String printer, int job, String token) {
         int roleId = GetRoleFromToken(token);
         if (roleId == 0 || roleId == 2) {
             if (printer.equals("printer1")) {
@@ -85,11 +84,11 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
                 listOfPrinters.get(1).addFirst(file);
             }
         }
-        System.out.println("No permission");
+        return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
 
     @Override
-    public void start(String token) throws RemoteException {
+    public String start(String token) throws RemoteException {
         int roleId = GetRoleFromToken(token);
         if (roleId == 0 || roleId == 1) {
             if (listOfPrinters.isEmpty()) {
@@ -98,20 +97,20 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             }
             isRunning = true;
         }
-        System.out.println("No permission");
+        return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
 
     @Override
-    public void stop(String token) throws RemoteException {
+    public String stop(String token) throws RemoteException {
         int roleId = GetRoleFromToken(token);
         if (roleId == 1) {
             isRunning = false;
         }
-        System.out.println("No permission");
+        return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
 
     @Override
-    public void restart(String token) throws RemoteException {
+    public String restart(String token) throws RemoteException {
         int roleId = GetRoleFromToken(token);
         if (roleId == 0 || roleId == 1 || roleId == 2) {
             stop(token);
@@ -121,7 +120,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             listOfPrinters.clear();
             start(token);
         }
-        System.out.println("No permission");
+        return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
 
     @Override
@@ -150,7 +149,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             return "";
         }
         System.out.println("No permission");
-        return "You do not have permission for that operations...";
+        return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
 
     @Override
@@ -159,16 +158,16 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
         if (roleId == 0 || roleId == 1) {
             return configParameter;
         }
-        System.out.println("No permission");
-        return "You do not have permission for that operations...";
+        return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
 
     @Override
-    public void setConfig(String parameter, String value, String token) {
+    public String setConfig(String parameter, String value, String token) {
         if (GetRoleFromToken(token) == 1) {
             configParameter = value;
+            return "Parameter: " + parameter + "changed to: " + value;
         }
-        System.out.println("No permission");
+        return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
 
     @Override
