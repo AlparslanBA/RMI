@@ -180,38 +180,6 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
     }
 
     @Override
-    public String deleteUser(String username, String token) throws IOException {
-        if (GetRoleFromToken(token) == 0) {
-            policyFile.setWritable(true);
-            Scanner reader = new Scanner(policyFile);
-            BufferedWriter bw = new BufferedWriter(new FileWriter(policyFile));
-            while (reader.hasNextLine()) {
-                String data = reader.nextLine();
-                System.out.println(data);
-                if(!data.contains(username)) {
-                    bw.write(data+System.getProperty("line.separator"));
-                }
-            }
-            policyFile.setWritable(false);
-
-            publicFile.setWritable(true);
-            reader = new Scanner(publicFile);
-            bw = new BufferedWriter(new FileWriter(publicFile));
-            while (reader.hasNextLine()) {
-                String data = reader.nextLine();
-                if(!data.contains(username)) {
-                    bw.write(data+System.getProperty("line.separator"));
-                }
-            }
-            publicFile.setWritable(false);
-
-            bw.close();
-            reader.close();
-            return username  + " has been deleted";
-        }
-        return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
-    }
-    @Override
     public String addUser(String username, String password,String role, String token) throws IOException, NoSuchAlgorithmException {
         if (GetRoleFromToken(token) == 0) {
             publicFile.setWritable(true);
@@ -246,7 +214,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             while (reader.hasNextLine()) {
                 String data = reader.nextLine();
                 System.out.println(data);
-                if(data.contains(username)) {
+                if(data.split(";")[0].contains(username)) {
                     bw.write(data.split(";")[0] + ";" + role + System.getProperty("line.separator"));
                 }
                 else{
@@ -258,11 +226,55 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             //policyFile.setWritable(false);
             policyFile.delete();
             tempFile.renameTo(policyFile);
-            policyFile = tempFile;
+            //policyFile = tempFile;
+            tempFile.setWritable(false);
+
             return username + " updated to have role: " + role;
         }
         return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
 
+    }
+
+    @Override
+    public String deleteUser(String username, String token) throws IOException {
+        if (GetRoleFromToken(token) == 0) {
+            File tempFile = new File("myTempFile.txt");
+            Scanner reader = new Scanner(policyFile);
+            BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
+
+            while (reader.hasNextLine()) {
+                String data = reader.nextLine();
+                System.out.println(data);
+                if(!data.split(";")[0].contains(username)) {
+                    bw.write(data+System.getProperty("line.separator"));
+                }
+            }
+            bw.close();
+            reader.close();
+            policyFile.delete();
+            tempFile.renameTo(policyFile);
+
+
+            tempFile = new File("myTempFile.txt");
+            reader = new Scanner(publicFile);
+            bw = new BufferedWriter(new FileWriter(tempFile));
+
+            while (reader.hasNextLine()) {
+                String data = reader.nextLine();
+                System.out.println(data);
+                if(!data.contains(username)) {
+                    bw.write(data+System.getProperty("line.separator"));
+                }
+            }
+
+            bw.close();
+            reader.close();
+            publicFile.delete();
+            tempFile.renameTo(publicFile);
+
+            return username  + " has been deleted";
+        }
+        return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
 
     private Boolean ReadFromPublicFile(String username, String password) throws FileNotFoundException {

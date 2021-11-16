@@ -24,6 +24,6 @@ public class Client {
         System.out.println(aliceClient.stop(token));
         System.out.println(aliceClient.addUser("alp","password", "0", token));
         System.out.println(aliceClient.updateUserRole("alp", "1", token));
-        //System.out.println(aliceClient.deleteUser("alp", token));
+        System.out.println(aliceClient.deleteUser("alp", token));
     }
 }
