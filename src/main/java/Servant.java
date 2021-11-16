@@ -4,6 +4,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
@@ -22,11 +23,22 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
     ArrayList<LinkedList<String>> listOfPrinters = new ArrayList<LinkedList<String>>();
     String userRole;
     Date now = new Date();
-    
+
     public Servant() throws RemoteException {
         file.setReadOnly();
     }
 
+    @Override
+    public void Testing() throws IOException {
+        //Delete user bob
+        deleteUser("Bob");
+        //Delete user George
+        deleteUser("George");
+        //Add user George with the rules
+   //     addUser("George", new String[]{"start, stop, restart, status, readConfig, setConfig"});
+   //     addUser("Henry", new String[]{"print, queue"});
+   //     addUser("Ida", new String[]{"print, queue, topQueue, restart"});
+    }
 
     @Override
     public String echo(String input, String token) throws RemoteException {
@@ -35,21 +47,21 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
 
     @Override
     public String print(String fileName, String printer, String token) {
-        if(!decodeJWT(token, "print")) {
+        if (!decodeJWT(token, "print")) {
             return "print not allowed";
+        } else {
+            if (printer.equals("printer1")) {
+                listOfPrinters.get(0).add(fileName);
+            } else if (printer.equals("printer2")) {
+                listOfPrinters.get(1).add(fileName);
+            }
+            return "print success";
         }
-        if (printer.equals("printer1")) {
-            listOfPrinters.get(0).add(fileName);
-        } else if (printer.equals("printer2")) {
-            listOfPrinters.get(1).add(fileName);
-        }
-
-        return "print success";
     }
 
     @Override
     public String queue(String printer, String token) {
-        if(decodeJWT(token, "print")){
+        if (decodeJWT(token, "queue")) {
             String queue = "";
             if (printer.equals("printer1")) {
                 for (int i = 0; i < listOfPrinters.get(0).size(); i++) {
@@ -64,63 +76,67 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             }
             return queue;
         }
-       return "no rights";
+        return "no rights";
     }
 
     @Override
     public String topQueue(String printer, int job, String token) {
-        if(!decodeJWT(token, "print")) {
+        if (!decodeJWT(token, "topQueue")) {
             return "topQueue not allowed";
+        } else {
+            if (printer.equals("printer1")) {
+                String file = listOfPrinters.get(0).remove(job);
+                listOfPrinters.get(0).addFirst(file);
+            } else if (printer.equals("printer2")) {
+                String file = listOfPrinters.get(1).remove(job);
+                listOfPrinters.get(1).addFirst(file);
+            }
+            return "topQueue success";
         }
-        if (printer.equals("printer1")) {
-            String file = listOfPrinters.get(0).remove(job);
-            listOfPrinters.get(0).addFirst(file);
-        } else if (printer.equals("printer2")) {
-            String file = listOfPrinters.get(1).remove(job);
-            listOfPrinters.get(1).addFirst(file);
-        }
-        return "topQueue success";
     }
 
     @Override
     public String start(String token) throws RemoteException {
-        if(!decodeJWT(token, "print")){
+        if (!decodeJWT(token, "start")) {
             return "You dont have access rights to start the server";
+        } else {
+            if (listOfPrinters.isEmpty()) {
+                listOfPrinters.add(printer1);
+                listOfPrinters.add(printer2);
+            }
+            isRunning = true;
+            return "printer started";
         }
-        if (listOfPrinters.isEmpty()) {
-            listOfPrinters.add(printer1);
-            listOfPrinters.add(printer2);
-        }
-        isRunning = true;
-        return "printer started";
     }
 
     @Override
     public String stop(String token) throws RemoteException {
-        if(!decodeJWT(token, "print")) {
+        if (!decodeJWT(token, "stop")) {
             return "stop not allowed";
+        } else {
+            isRunning = false;
+            return "success";
         }
-        isRunning = false;
-        return "success";
     }
 
     @Override
     public String restart(String token) throws RemoteException {
-        if(!decodeJWT(token, "print")) {
+        if (!decodeJWT(token, "restart")) {
             return "restart not allowed";
+        } else {
+            stop(token);
+            for (int i = 0; i < listOfPrinters.size(); i++) {
+                listOfPrinters.get(i).clear();
+            }
+            listOfPrinters.clear();
+            start(token);
+            return "success";
         }
-        stop(token);
-        for (int i = 0; i < listOfPrinters.size(); i++) {
-            listOfPrinters.get(i).clear();
-        }
-        listOfPrinters.clear();
-        start(token);
-        return "success";
     }
 
     @Override
     public String status(String printer, String token) {
-        if(decodeJWT(token, "print")) {
+        if (decodeJWT(token, "status")) {
             if (!isRunning) {
                 return "Server is not running";
             }
@@ -142,35 +158,34 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             }
             return "";
         }
-      return "Status not allowed";
+        return "Status not allowed";
     }
 
     @Override
     public String readConfig(String parameter, String token) {
-        if(decodeJWT(token, "print")) {
+        if (decodeJWT(token, "readConfig")) {
             return configParameter;
+        } else {
+            return "not allowed";
         }
-       return "not allowed";
     }
 
     @Override
     public String setConfig(String parameter, String value, String token) {
-        if(decodeJWT(token, "print")) {
+        if (decodeJWT(token, "setConfig")) {
             configParameter = value;
             return "success";
+        } else {
+            return "setConfig not allowed";
         }
-
-        return "setConfig not allowed";
-
     }
 
     @Override
     public String login(String username, String password) throws IOException, NoSuchAlgorithmException {
-        if (ReadFromPublicFile(username, EncryptPassword(password))){
+        if (ReadFromPublicFile(username, EncryptPassword(password))) {
             String token = createJWT(username);
             return token;
         }
-
         return "Username or password incorrect";
     }
 
@@ -180,26 +195,27 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             Algorithm algorithm = Algorithm.HMAC256("secret");
             token = JWT.create()
                     .withSubject(id)
-                    .withExpiresAt(new Date(now.getTime() + 10000))
+                    .withExpiresAt(new Date(now.getTime() + 1000000))
                     .withIssuer("localhost")
                     .sign(algorithm);
             System.out.println("Token is genetrated");
-        } catch (JWTCreationException exception){
+        } catch (JWTCreationException exception) {
             System.out.println("Cant create JWT");
         }
 
         //Builds the JWT and serializes it to a compact, URL-safe string
         return token;
     }
+
     private boolean checkRole(String username, String operations) throws FileNotFoundException {
         Scanner myReader = new Scanner(passwordFile);
         boolean userfound = false;
-     //   System.out.println(username + "   "  + operations);
+        //   System.out.println(username + "   "  + operations);
 
         while (myReader.hasNextLine()) {
             String data = myReader.nextLine();
-            if(data.contains(username)) {
-                if(data.contains(operations)) {
+            if (data.contains(username)) {
+                if (data.contains(operations)) {
                     userfound = true;
                 } else {
                     userfound = false;
@@ -218,10 +234,10 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
 
         String currentLine;
 
-        while((currentLine = reader.readLine()) != null) {
+        while ((currentLine = reader.readLine()) != null) {
             // trim newline when comparing with lineToRemove
             String trimmedLine = currentLine.trim();
-            if(trimmedLine.contains(username)) continue;
+            if (trimmedLine.contains(username)) continue;
             writer.write(currentLine + System.getProperty("line.separator"));
         }
         writer.close();
@@ -231,17 +247,16 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
     }
 
     private void addUser(String username, String[] pernmissions) throws IOException {
-
-            FileWriter fw = new FileWriter(passwordFile, true);
-            BufferedWriter bw = new BufferedWriter(fw);
-            String perms = "";
-        for (String role: pernmissions) {
-           perms = perms.concat(role+", ");
+        FileWriter fw = new FileWriter(passwordFile, true);
+        BufferedWriter bw = new BufferedWriter(fw);
+        String perms = "";
+        for (String role : pernmissions) {
+            perms = perms.concat(role + ", ");
 
         }
-            bw.write(username+": " + perms);
-            bw.newLine();
-            bw.close();
+        bw.write(username + ": " + perms);
+        bw.newLine();
+        bw.close();
     }
 
     private Boolean ReadFromPublicFile(String username, String password) throws FileNotFoundException {
@@ -251,7 +266,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
         while (myReader.hasNextLine()) {
             String data = myReader.nextLine();
 
-            if (username.equals(data.split(";")[0]) && password.equals(data.split(";")[1])){
+            if (username.equals(data.split(";")[0]) && password.equals(data.split(";")[1])) {
                 loggedIn = true;
                 break;
             }
@@ -259,9 +274,9 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
         myReader.close();
         return loggedIn;
     }
-    
+
     private String EncryptPassword(String password) throws NoSuchAlgorithmException {
-     MessageDigest msgDigest = MessageDigest.getInstance("SHA-256");
+        MessageDigest msgDigest = MessageDigest.getInstance("SHA-256");
         byte[] encodedHash = msgDigest.digest(
                 "password".getBytes(StandardCharsets.UTF_8)
         );
@@ -272,7 +287,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
         StringBuilder hexString = new StringBuilder(2 * hash.length);
         for (int i = 0; i < hash.length; i++) {
             String hex = Integer.toHexString(0xff & hash[i]);
-            if(hex.length() == 1) {
+            if (hex.length() == 1) {
                 hexString.append('0');
             }
             hexString.append(hex);
@@ -280,7 +295,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
         return hexString.toString();
     }
 
-    private boolean decodeJWT(String token, String operation){
+    private boolean decodeJWT(String token, String operation) {
 
         try {
             Algorithm algorithm = Algorithm.HMAC256("secret");
@@ -291,7 +306,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             DecodedJWT jwt = verifier.verify(token);
             System.out.println("Token is Valid");
             return checkRole(decodedJWT.getSubject(), operation);
-        } catch (JWTVerificationException | FileNotFoundException exception){
+        } catch (JWTVerificationException | FileNotFoundException exception) {
             System.out.println("Invalid JWT");
         }
         return false;

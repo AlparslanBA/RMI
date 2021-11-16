@@ -19,7 +19,8 @@ public class Server {
         Registry registry = LocateRegistry.createRegistry(9001);
         registry.rebind("communication", new Servant());
 
-        Server server = new Server();
+      //  Server server = new Server();
+        System.out.println("Server started");
 
         //server.FileWriter("Alens got a big head");
         //server.FileWriter("Alen small pepe");
@@ -29,34 +30,9 @@ public class Server {
 
        // checkRole("David", "print");
 
-        String token = server.createJWT("test");
-        Thread.sleep(1);
-        server.decodeJWT(token);
-    }
-
-    static private boolean checkRole(String username, String operations) throws FileNotFoundException {
-        Scanner myReader = new Scanner("accessControllPolicy.txt");
-        boolean userfound = false;
-        System.out.println(username + "   "  + operations);
-        System.out.println(myReader);
-
-        while (myReader.hasNextLine()) {
-            String data = myReader.nextLine();
-
-            System.out.println(myReader);
-            System.out.println("   h----");
-           // System.out.println(myReader.nextLine());
-            System.out.println("   h---");
-            System.out.println(data);
-
-
-            if(data.contains(username)) {
-                System.out.println("It works");
-                System.out.println(operations);
-                return data.contains(operations);
-            }
-        }
-        return false;
+     //   String token = server.createJWT("test");
+     //   Thread.sleep(1);
+     //   server.decodeJWT(token);
     }
 
     private void FileWriter(String input){
@@ -86,7 +62,7 @@ public class Server {
             Algorithm algorithm = Algorithm.HMAC256("secret");
             token = JWT.create()
                     .withSubject(id)
-                    .withExpiresAt(new Date(now.getTime() + 10000))
+                    .withExpiresAt(new Date(now.getTime() + 1000000))
                     .withIssuer("localhost")
                     .sign(algorithm);
             System.out.println("Token is genetrated");

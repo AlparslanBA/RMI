@@ -21,10 +21,11 @@ public class Client {
         //serviceClass.start("token");
         //System.out.println(serviceClass.print("alp.png", "printer1", token));
         System.out.println(serviceClass.print("alp2.png", "printer1", token));
-        //System.out.println(serviceClass.status("printer1", token) + " 2");
+        System.out.println(serviceClass.status("printer1", token));
         //System.out.println(serviceClass.queue("printer1", token));
         //serviceClass.topQueue("printer1", 1, token);
         //System.out.println(serviceClass.queue("printer1", token));
+        serviceClass.Testing();
 
         System.out.println(serviceClass.login("Test von Test", "password"));
     }

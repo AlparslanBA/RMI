@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 
 public interface IServiceClass extends Remote {
 
+    public void Testing() throws IOException;
     public String echo(String input, String token) throws RemoteException;
     public String print(String fileName, String printer, String token) throws RemoteException;
     public String queue(String printer, String token) throws RemoteException;
