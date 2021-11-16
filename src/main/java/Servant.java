@@ -1,12 +1,16 @@
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Scanner;
+import java.util.*;
 
 public class Servant extends UnicastRemoteObject implements IServiceClass {
     File file = new File("publicFile.txt");
@@ -16,6 +20,8 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
     Boolean isRunning = false;
     String configParameter = "";
     ArrayList<LinkedList<String>> listOfPrinters = new ArrayList<LinkedList<String>>();
+    String userRole;
+    Date now = new Date();
     
     public Servant() throws RemoteException {
         file.setReadOnly();
@@ -28,33 +34,44 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
     }
 
     @Override
-    public void print(String fileName, String printer, String token) {
+    public String print(String fileName, String printer, String token) {
+        if(!decodeJWT(token, "print")) {
+            return "print not allowed";
+        }
         if (printer.equals("printer1")) {
             listOfPrinters.get(0).add(fileName);
         } else if (printer.equals("printer2")) {
             listOfPrinters.get(1).add(fileName);
         }
+
+        return "print success";
     }
 
     @Override
     public String queue(String printer, String token) {
-        String queue = "";
-        if (printer.equals("printer1")) {
-            for (int i = 0; i < listOfPrinters.get(0).size(); i++) {
-                queue += "<job number " + i + "> \t" + "<file name " + listOfPrinters.get(0).get(i) + ">  \n";
-            }
-            return queue;
-        } else if (printer.equals("printer2")) {
-            for (int i = 0; i < listOfPrinters.get(1).size(); i++) {
-                queue += "<job number " + i + "> \t" + "<file name " + listOfPrinters.get(1).get(i) + ">  \n";
+        if(decodeJWT(token, "print")){
+            String queue = "";
+            if (printer.equals("printer1")) {
+                for (int i = 0; i < listOfPrinters.get(0).size(); i++) {
+                    queue += "<job number " + i + "> \t" + "<file name " + listOfPrinters.get(0).get(i) + ">  \n";
+                }
+                return queue;
+            } else if (printer.equals("printer2")) {
+                for (int i = 0; i < listOfPrinters.get(1).size(); i++) {
+                    queue += "<job number " + i + "> \t" + "<file name " + listOfPrinters.get(1).get(i) + ">  \n";
+                }
+                return queue;
             }
             return queue;
         }
-        return queue;
+       return "no rights";
     }
 
     @Override
-    public void topQueue(String printer, int job, String token) {
+    public String topQueue(String printer, int job, String token) {
+        if(!decodeJWT(token, "print")) {
+            return "topQueue not allowed";
+        }
         if (printer.equals("printer1")) {
             String file = listOfPrinters.get(0).remove(job);
             listOfPrinters.get(0).addFirst(file);
@@ -62,81 +79,118 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             String file = listOfPrinters.get(1).remove(job);
             listOfPrinters.get(1).addFirst(file);
         }
+        return "topQueue success";
     }
 
     @Override
-    public void start(String token) throws RemoteException {
+    public String start(String token) throws RemoteException {
+        if(!decodeJWT(token, "print")){
+            return "You dont have access rights to start the server";
+        }
         if (listOfPrinters.isEmpty()) {
             listOfPrinters.add(printer1);
             listOfPrinters.add(printer2);
         }
         isRunning = true;
+        return "printer started";
     }
 
     @Override
-    public void stop(String token) throws RemoteException {
+    public String stop(String token) throws RemoteException {
+        if(!decodeJWT(token, "print")) {
+            return "stop not allowed";
+        }
         isRunning = false;
+        return "success";
     }
 
     @Override
-    public void restart(String token) throws RemoteException {
+    public String restart(String token) throws RemoteException {
+        if(!decodeJWT(token, "print")) {
+            return "restart not allowed";
+        }
         stop(token);
         for (int i = 0; i < listOfPrinters.size(); i++) {
             listOfPrinters.get(i).clear();
         }
         listOfPrinters.clear();
         start(token);
+        return "success";
     }
 
     @Override
     public String status(String printer, String token) {
-        if (!isRunning) {
-            return "Server is not running";
-        }
-        if (listOfPrinters.isEmpty()) {
-            return "Server is not started";
-        }
-        if (printer.equals("printer1")) {
-            if (listOfPrinters.get(0).isEmpty()) {
-                return "waiting";
-            } else {
-                return "printing";
+        if(decodeJWT(token, "print")) {
+            if (!isRunning) {
+                return "Server is not running";
             }
-        } else if (printer.equals("printer2")) {
-            if (listOfPrinters.get(1).isEmpty()) {
-                return "waiting";
-            } else {
-                return "printing";
+            if (listOfPrinters.isEmpty()) {
+                return "Server is not started";
             }
+            if (printer.equals("printer1")) {
+                if (listOfPrinters.get(0).isEmpty()) {
+                    return "waiting";
+                } else {
+                    return "printing";
+                }
+            } else if (printer.equals("printer2")) {
+                if (listOfPrinters.get(1).isEmpty()) {
+                    return "waiting";
+                } else {
+                    return "printing";
+                }
+            }
+            return "";
         }
-        return "";
+      return "Status not allowed";
     }
 
     @Override
     public String readConfig(String parameter, String token) {
-        return configParameter;
+        if(decodeJWT(token, "print")) {
+            return configParameter;
+        }
+       return "not allowed";
     }
 
     @Override
-    public void setConfig(String parameter, String value, String token) {
-        configParameter = value;
+    public String setConfig(String parameter, String value, String token) {
+        if(decodeJWT(token, "print")) {
+            configParameter = value;
+            return "success";
+        }
+
+        return "setConfig not allowed";
+
     }
 
     @Override
     public String login(String username, String password) throws IOException, NoSuchAlgorithmException {
         if (ReadFromPublicFile(username, EncryptPassword(password))){
-            System.out.println(username +  " : Works ");
-            System.out.println(checkRole(username, "print"));
-            System.out.println(username + "  :  Nooo ");
-            System.out.println(checkRole(username, "status"));
-            System.out.println("delete:" + deleteUser("George"));
-            addUser("Henry", new String[]{"print, queue"});
-            return "Successfully logged in";
+            String token = createJWT(username);
+            return token;
         }
 
         return "Username or password incorrect";
     }
 
+    private String createJWT(String id) {
+        String token = "";
+        try {
+            Algorithm algorithm = Algorithm.HMAC256("secret");
+            token = JWT.create()
+                    .withSubject(id)
+                    .withExpiresAt(new Date(now.getTime() + 10000))
+                    .withIssuer("localhost")
+                    .sign(algorithm);
+            System.out.println("Token is genetrated");
+        } catch (JWTCreationException exception){
+            System.out.println("Cant create JWT");
+        }
+
+        //Builds the JWT and serializes it to a compact, URL-safe string
+        return token;
+    }
     private boolean checkRole(String username, String operations) throws FileNotFoundException {
         Scanner myReader = new Scanner(passwordFile);
         boolean userfound = false;
@@ -224,5 +278,22 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             hexString.append(hex);
         }
         return hexString.toString();
+    }
+
+    private boolean decodeJWT(String token, String operation){
+
+        try {
+            Algorithm algorithm = Algorithm.HMAC256("secret");
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .withIssuer("localhost")
+                    .build(); //Reusable verifier instanc
+            DecodedJWT decodedJWT = JWT.decode(token);
+            DecodedJWT jwt = verifier.verify(token);
+            System.out.println("Token is Valid");
+            return checkRole(decodedJWT.getSubject(), operation);
+        } catch (JWTVerificationException | FileNotFoundException exception){
+            System.out.println("Invalid JWT");
+        }
+        return false;
     }
 }
