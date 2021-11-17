@@ -35,9 +35,9 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
         //Delete user George
         deleteUser("George");
         //Add user George with the rules
-   //     addUser("George", new String[]{"start, stop, restart, status, readConfig, setConfig"});
-   //     addUser("Henry", new String[]{"print, queue"});
-   //     addUser("Ida", new String[]{"print, queue, topQueue, restart"});
+        addUser("George", new String[]{"start, stop, restart, status, readConfig, setConfig"});
+        addUser("Henry", new String[]{"print, queue"});
+        addUser("Ida", new String[]{"print, queue, topQueue, restart"});
     }
 
     @Override
