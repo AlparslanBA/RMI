@@ -209,21 +209,21 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
 
     private boolean checkRole(String username, String operations) throws FileNotFoundException {
         Scanner myReader = new Scanner(passwordFile);
-        boolean userfound = false;
+        boolean authorized = false;
         //   System.out.println(username + "   "  + operations);
 
         while (myReader.hasNextLine()) {
             String data = myReader.nextLine();
             if (data.contains(username)) {
                 if (data.contains(operations)) {
-                    userfound = true;
+                    authorized = true;
                 } else {
-                    userfound = false;
+                    authorized = false;
                 }
                 break;
             }
         }
-        return userfound;
+        return authorized;
     }
 
     private boolean deleteUser(String username) throws IOException {
