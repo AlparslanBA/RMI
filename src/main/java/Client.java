@@ -22,8 +22,9 @@ public class Client {
         System.out.println(aliceClient.status("",token));
         System.out.println(aliceClient.restart(token));
         System.out.println(aliceClient.stop(token));
-        System.out.println(aliceClient.addUser("alp","password", "0", token));
-        System.out.println(aliceClient.updateUserRole("alp", "1", token));
-        System.out.println(aliceClient.deleteUser("alp", token));
+        System.out.println(aliceClient.addUser("Henry","password", "3", token));
+        System.out.println(aliceClient.addUser("Ida","password", "2", token));
+        System.out.println(aliceClient.updateUserRole("George", "1", token));
+        System.out.println(aliceClient.deleteUser("Bob", token));
     }
 }

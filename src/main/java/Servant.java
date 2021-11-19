@@ -45,6 +45,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             } else if (printer.equals("printer2")) {
                 listOfPrinters.get(1).add(fileName);
             }
+            return "Printed: " + fileName + " on printer: " + printer ;
         }
         return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
@@ -63,9 +64,8 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             for (int i = 0; i < listOfPrinters.get(1).size(); i++) {
                 queue += "<job number " + i + "> \t" + "<file name " + listOfPrinters.get(1).get(i) + ">  \n";
             }
-            return queue;
         }
-        return queue;
+        return "Queue: " + queue;
         }
         return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
@@ -81,6 +81,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
                 String file = listOfPrinters.get(1).remove(job);
                 listOfPrinters.get(1).addFirst(file);
             }
+            return "Job: " + job + " has been moved to the top of the queue of printer: " + printer;
         }
         return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
@@ -94,6 +95,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
                 listOfPrinters.add(printer2);
             }
             isRunning = true;
+            return "Server has been started";
         }
         return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
@@ -101,8 +103,9 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
     @Override
     public String stop(String token) throws RemoteException {
         int roleId = GetRoleFromToken(token);
-        if (roleId == 1) {
+        if (roleId == 0 || roleId == 1) {
             isRunning = false;
+            return "Server has been stopped";
         }
         return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
@@ -117,6 +120,7 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
             }
             listOfPrinters.clear();
             start(token);
+            return "Server has been restarted";
         }
         return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
@@ -144,9 +148,8 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
                     return "printing";
                 }
             }
-            return "";
+            return "Error could not get status of printer: " + printer;
         }
-        System.out.println("No permission");
         return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
 
@@ -154,14 +157,15 @@ public class Servant extends UnicastRemoteObject implements IServiceClass {
     public String readConfig(String parameter, String token) {
         int roleId = GetRoleFromToken(token);
         if (roleId == 0 || roleId == 1) {
-            return configParameter;
+            return "Config: " + configParameter;
         }
         return "You do not have permission to " + new Object(){}.getClass().getEnclosingMethod().getName();
     }
 
     @Override
     public String setConfig(String parameter, String value, String token) {
-        if (GetRoleFromToken(token) == 1) {
+        int roleId = GetRoleFromToken(token);
+        if (roleId == 0 || roleId == 1) {
             configParameter = value;
             return "Parameter: " + parameter + "changed to: " + value;
         }
